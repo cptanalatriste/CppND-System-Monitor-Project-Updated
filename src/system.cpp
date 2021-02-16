@@ -22,9 +22,9 @@ vector<Process>& System::Processes() {
 
     vector<int> process_ids = LinuxParser::Pids();
     for (int pid: process_ids) {
-        Process* process = new Process();
-        process->Pid(pid);
-        processes_.push_back(*process);
+        Process process;
+        process.Pid(pid);
+        processes_.push_back(process);
     }
 
     return processes_; 
@@ -33,8 +33,8 @@ vector<Process>& System::Processes() {
 // Return the system's kernel identifier (string)
 std::string System::Kernel() { return LinuxParser::Kernel(); }
 
-// TODO: Return the system's memory utilization
-float System::MemoryUtilization() { return 0.0; }
+// Return the system's memory utilization
+float System::MemoryUtilization() { return LinuxParser::MemoryUtilization(); }
 
 // Return the operating system name
 std::string System::OperatingSystem() { return LinuxParser::OperatingSystem(); }
