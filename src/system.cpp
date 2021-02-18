@@ -24,6 +24,10 @@ vector<Process>& System::Processes() {
     for (int pid: process_ids) {
         Process process;
         process.Pid(pid);
+
+        string user = LinuxParser::User(pid);
+        process.User(user);
+
         processes_.push_back(process);
     }
 
