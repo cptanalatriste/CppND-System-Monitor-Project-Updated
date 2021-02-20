@@ -245,11 +245,8 @@ vector<string> GetStatusValues(string stat_name, int pid) {
 string LinuxParser::Ram(int pid) { 
 
   vector<string> status_values = GetStatusValues("VmSize:", pid);
-  float memory_in_mb = std::stoi(status_values[0]) * 0.001;
-
-  std::stringstream string_stream;
-  string_stream << std::fixed << std::setprecision(2) << memory_in_mb;
-  return string_stream.str(); 
+  int memory_in_mb = std::stoi(status_values[0]) * 0.001;
+  return std::to_string(memory_in_mb); 
 }
 
 // Read and return the user ID associated with a process
@@ -285,9 +282,12 @@ string LinuxParser::User(int pid) {
   return string(); 
 }
 
-// TODO: Read and return the uptime of a process
-// REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::UpTime(int pid[[maybe_unused]]) { return 0; }
+// Read and return the uptime of a process
+long LinuxParser::UpTime(int pid) { 
+  vector<string> cpu_utilisation = LinuxParser::CpuUtilization(pid);
+  string process_uptime = cpu_utilisation[21];
+  return std::stol(process_uptime); 
+}
 
 vector<string> LinuxParser::CpuUtilization(int pid) {
   string line;

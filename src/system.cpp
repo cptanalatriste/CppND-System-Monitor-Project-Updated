@@ -37,6 +37,9 @@ vector<Process>& System::Processes() {
         string ram = LinuxParser::Ram(pid);
         process.Ram(ram);
 
+        long int uptime = LinuxParser::UpTime(pid);
+        process.UpTime(uptime);
+
         processes_.push_back(process);
     }
 
@@ -52,11 +55,11 @@ float System::MemoryUtilization() { return LinuxParser::MemoryUtilization(); }
 // Return the operating system name
 std::string System::OperatingSystem() { return LinuxParser::OperatingSystem(); }
 
-// TODO: Return the number of processes actively running on the system
+// Return the number of processes actively running on the system
 int System::RunningProcesses() { return LinuxParser::RunningProcesses(); }
 
-// TODO: Return the total number of processes on the system
+// Return the total number of processes on the system
 int System::TotalProcesses() { return LinuxParser::TotalProcesses(); }
 
-// TODO: Return the number of seconds since the system started running
+// Return the number of seconds since the system started running
 long int System::UpTime() { return LinuxParser::UpTime(); }

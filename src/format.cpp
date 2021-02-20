@@ -36,5 +36,5 @@ string Format::ElapsedTime(long seconds) {
     } 
 
 
-    return FormatNumber(total_hours) + FormatNumber(total_minutes) + FormatNumber(total_seconds); 
+    return FormatNumber(total_hours) + ":" + FormatNumber(total_minutes) + ":" + FormatNumber(total_seconds); 
 }
