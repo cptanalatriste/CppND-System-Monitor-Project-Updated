@@ -32,8 +32,10 @@ vector<Process>& System::Processes() {
         float process_total_time = LinuxParser::ActiveJiffies(pid);
         vector<string> cpu_utilisation = LinuxParser::CpuUtilization(pid);
         float process_start_time = std::stof(cpu_utilisation[21]);
-
         process.CpuUtilisation(system_uptime, process_start_time, process_total_time);
+
+        string ram = LinuxParser::Ram(pid);
+        process.Ram(ram);
 
         processes_.push_back(process);
     }

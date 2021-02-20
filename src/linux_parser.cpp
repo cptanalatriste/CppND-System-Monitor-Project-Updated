@@ -1,6 +1,8 @@
 #include <dirent.h>
 #include <unistd.h>
 #include <string>
+#include <sstream>
+#include <iomanip>
 #include <vector>
 
 
@@ -216,33 +218,43 @@ int LinuxParser::RunningProcesses() {
 // REMOVE: [[maybe_unused]] once you define the function
 string LinuxParser::Command(int pid[[maybe_unused]]) { return string(); }
 
-// TODO: Read and return the memory used by a process
-// REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::Ram(int pid[[maybe_unused]]) { return string(); }
-
-// Read and return the user ID associated with a process
-string LinuxParser::Uid(int pid) {
-
+vector<string> GetStatusValues(string stat_name, int pid) {
   string line;
   string buffer;
-  vector<string> uid_values;
+  vector<string> status_values;
 
-  std::ifstream stream(kProcDirectory + std::to_string(pid) + kStatusFilename);
+  std::ifstream stream(LinuxParser::kProcDirectory + std::to_string(pid) + LinuxParser::kStatusFilename);
   if (stream.is_open()) {
     while (std::getline(stream, line)) {
-
       std::stringstream string_stream(line);
       string_stream >> buffer;
 
-      if (buffer == "Uid:") {
+      if (buffer == stat_name) {
         while (string_stream >> buffer) {
-          uid_values.push_back(buffer);
+          status_values.push_back(buffer);
         }
-        return uid_values[0];
+        return status_values;
       }
     }
   }
-  return {}; 
+  return {};  
+}
+
+
+// Read and return the memory used by a process
+string LinuxParser::Ram(int pid) { 
+
+  vector<string> status_values = GetStatusValues("VmSize:", pid);
+  float memory_in_mb = std::stoi(status_values[0]) * 0.001;
+
+  std::stringstream string_stream;
+  string_stream << std::fixed << std::setprecision(2) << memory_in_mb;
+  return string_stream.str(); 
+}
+
+// Read and return the user ID associated with a process
+string LinuxParser::Uid(int pid) {
+  return GetStatusValues("Uid:", pid)[0];
 }
 
 // Read and return the user associated with a process
