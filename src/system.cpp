@@ -28,10 +28,12 @@ vector<Process>& System::Processes() {
         string user = LinuxParser::User(pid);
         process.User(user);
 
-        vector<string> cpu_utilisation = LinuxParser::CpuUtilization(pid);
         long system_uptime = LinuxParser::UpTime();
+        float process_total_time = LinuxParser::ActiveJiffies(pid);
+        vector<string> cpu_utilisation = LinuxParser::CpuUtilization(pid);
+        float process_start_time = std::stof(cpu_utilisation[21]);
 
-        process.CpuUtilisation(system_uptime, cpu_utilisation);
+        process.CpuUtilisation(system_uptime, process_start_time, process_total_time);
 
         processes_.push_back(process);
     }

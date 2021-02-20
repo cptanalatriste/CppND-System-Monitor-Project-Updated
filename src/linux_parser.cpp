@@ -111,18 +111,51 @@ long LinuxParser::UpTime() {
   return 0;
 }
 
-// TODO: Read and return the number of jiffies for the system
-long LinuxParser::Jiffies() { return 0; }
+// Read and return the number of jiffies for the system
+long LinuxParser::Jiffies() {
+   return LinuxParser::ActiveJiffies() + LinuxParser::IdleJiffies(); 
+}
 
-// TODO: Read and return the number of active jiffies for a PID
-// REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::ActiveJiffies(int pid[[maybe_unused]]) { return 0; }
+// Read and return the number of active jiffies for a PID
+long LinuxParser::ActiveJiffies(int pid) { 
+  vector<string> cpu_utilisation = LinuxParser::CpuUtilization(pid);
 
-// TODO: Read and return the number of active jiffies for the system
-long LinuxParser::ActiveJiffies() { return 0; }
+  long user_code_time = std::stol(cpu_utilisation[13]);
+  long kernel_code_time = std::stol(cpu_utilisation[14]);
+  long waited_user_time = std::stol(cpu_utilisation[15]);
+  long waited_kernel_time = std::stol(cpu_utilisation[16]);
 
-// TODO: Read and return the number of idle jiffies for the system
-long LinuxParser::IdleJiffies() { return 0; }
+  float process_total_time = user_code_time + kernel_code_time + waited_user_time + waited_kernel_time;
+
+  return process_total_time; 
+}
+
+// Read and return the number of active jiffies for the system
+long LinuxParser::ActiveJiffies() { 
+  std::vector<std::string> cpu_values = LinuxParser::CpuUtilization();
+
+  long user_time = std::stol(cpu_values[LinuxParser::CPUStates::kUser_]);
+  long nice_time = std::stol(cpu_values[LinuxParser::CPUStates::kNice_]);
+  long system_time = std::stol(cpu_values[LinuxParser::CPUStates::kSystem_]);
+  long interrupt_time = std::stol(cpu_values[LinuxParser::CPUStates::kIRQ_]);
+  long soft_interrupt_time = std::stol(cpu_values[LinuxParser::CPUStates::kSoftIRQ_]);
+  long involuntary_wait_time = std::stol(cpu_values[LinuxParser::CPUStates::kSteal_]);
+
+  float total_non_idle_time = user_time + nice_time + system_time + interrupt_time + soft_interrupt_time + 
+    involuntary_wait_time;
+  return total_non_idle_time; 
+}
+
+//  Read and return the number of idle jiffies for the system
+long LinuxParser::IdleJiffies() {
+  std::vector<std::string> cpu_values = LinuxParser::CpuUtilization();
+
+  long idle_time = std::stol(cpu_values[LinuxParser::CPUStates::kIdle_]);
+  long io_wait_time = std::stol(cpu_values[LinuxParser::CPUStates::kIOwait_]);
+  
+  float total_idle_time = idle_time + io_wait_time;
+  return total_idle_time; 
+}
 
 // Read and return CPU utilization
 vector<string> LinuxParser::CpuUtilization() { 

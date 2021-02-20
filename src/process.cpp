@@ -3,6 +3,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <time.h>
 
 #include "process.h"
 
@@ -15,8 +16,14 @@ int Process::Pid() { return pid_; }
 
 void Process::Pid(int pid) { pid_ = pid; }
 
-// TODO: Return this process's CPU utilization
-float Process::CpuUtilization() { return 0; }
+// Return this process's CPU utilization
+float Process::CpuUtilization() { return cpu_utilisation_; }
+
+void Process::CpuUtilisation(long system_uptime, float process_start_time, float process_total_time) { 
+    long clocks_per_second = CLOCKS_PER_SEC;
+    float total_elapsed_time = system_uptime - (process_start_time/clocks_per_second);
+    cpu_utilisation_ = process_total_time/clocks_per_second/total_elapsed_time * 100; 
+}
 
 // TODO: Return the command that generated this process
 string Process::Command() { return string(); }
@@ -24,8 +31,10 @@ string Process::Command() { return string(); }
 // TODO: Return this process's memory utilization
 string Process::Ram() { return string(); }
 
-// TODO: Return the user (name) that generated this process
-string Process::User() { return string(); }
+// Return the user (name) that generated this process
+string Process::User() { return user_; }
+
+void Process::User(std::string user) { user_ = user; }
 
 // TODO: Return the age of this process (in seconds)
 long int Process::UpTime() { return 0; }
