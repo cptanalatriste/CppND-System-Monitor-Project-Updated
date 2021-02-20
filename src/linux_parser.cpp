@@ -214,9 +214,16 @@ int LinuxParser::RunningProcesses() {
    return GetStatValue("procs_running"); 
 }
 
-// TODO: Read and return the command associated with a process
-// REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::Command(int pid[[maybe_unused]]) { return string(); }
+// Read and return the command associated with a process
+string LinuxParser::Command(int pid) { 
+  string line;
+  std::ifstream stream(kProcDirectory + std::to_string(pid) + kCmdlineFilename);
+  if (stream.is_open()) {
+    std::getline(stream, line);
+    return line;
+  }
+  return string(); 
+}
 
 vector<string> GetStatusValues(string stat_name, int pid) {
   string line;
