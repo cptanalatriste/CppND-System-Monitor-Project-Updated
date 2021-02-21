@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <unistd.h>
 
 #include "process.h"
 #include "processor.h"
@@ -21,6 +22,8 @@ Processor& System::Cpu() { return cpu_; }
 // Return a container composed of the system's processes
 vector<Process>& System::Processes() {
 
+    processes_.clear();
+
     vector<int> process_ids = LinuxParser::Pids();
     for (int pid: process_ids) {
         Process process;
@@ -31,15 +34,14 @@ vector<Process>& System::Processes() {
 
         long system_uptime = LinuxParser::UpTime();
         float process_total_time = LinuxParser::ActiveJiffies(pid);
-        vector<string> cpu_utilisation = LinuxParser::CpuUtilization(pid);
-        float process_start_time = std::stof(cpu_utilisation[21]);
-        process.CpuUtilisation(system_uptime, process_start_time, process_total_time);
+        float start_time_clockticks = LinuxParser::UpTime(pid);
+        process.CpuUtilisation(system_uptime, start_time_clockticks, process_total_time);
 
         string ram = LinuxParser::Ram(pid);
         process.Ram(ram);
 
-        long int uptime = LinuxParser::UpTime(pid);
-        process.UpTime(uptime);
+        float start_time_seconds = start_time_clockticks/sysconf(_SC_CLK_TCK);
+        process.UpTime(system_uptime - start_time_seconds);
 
         string command = LinuxParser::Command(pid);
         process.Command(command);

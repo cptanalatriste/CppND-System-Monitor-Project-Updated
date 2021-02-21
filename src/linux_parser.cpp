@@ -38,15 +38,15 @@ string LinuxParser::OperatingSystem() {
 
 // DONE: An example of how to read data from the filesystem
 string LinuxParser::Kernel() {
-  string os, kernel;
+  string os, kernel_label, kernel_value;
   string line;
   std::ifstream stream(kProcDirectory + kVersionFilename);
   if (stream.is_open()) {
     std::getline(stream, line);
     std::istringstream linestream(line);
-    linestream >> os >> kernel;
+    linestream >> os >> kernel_label >> kernel_value;
   }
-  return kernel;
+  return kernel_value;
 }
 
 // BONUS: Update this to use std::filesystem
@@ -113,6 +113,10 @@ long LinuxParser::UpTime() {
   return 0;
 }
 
+int PositionToVectorIndex(int position_in_line) {
+  return position_in_line - 1;
+}
+
 // Read and return the number of jiffies for the system
 long LinuxParser::Jiffies() {
    return LinuxParser::ActiveJiffies() + LinuxParser::IdleJiffies(); 
@@ -122,10 +126,10 @@ long LinuxParser::Jiffies() {
 long LinuxParser::ActiveJiffies(int pid) { 
   vector<string> cpu_utilisation = LinuxParser::CpuUtilization(pid);
 
-  long user_code_time = std::stol(cpu_utilisation[13]);
-  long kernel_code_time = std::stol(cpu_utilisation[14]);
-  long waited_user_time = std::stol(cpu_utilisation[15]);
-  long waited_kernel_time = std::stol(cpu_utilisation[16]);
+  long user_code_time = std::stol(cpu_utilisation[PositionToVectorIndex(14)]);
+  long kernel_code_time = std::stol(cpu_utilisation[PositionToVectorIndex(15)]);
+  long waited_user_time = std::stol(cpu_utilisation[PositionToVectorIndex(16)]);
+  long waited_kernel_time = std::stol(cpu_utilisation[PositionToVectorIndex(17)]);
 
   float process_total_time = user_code_time + kernel_code_time + waited_user_time + waited_kernel_time;
 
@@ -289,10 +293,11 @@ string LinuxParser::User(int pid) {
   return string(); 
 }
 
-// Read and return the uptime of a process
+// Read and return the uptime of a process in clock ticks
 long LinuxParser::UpTime(int pid) { 
   vector<string> cpu_utilisation = LinuxParser::CpuUtilization(pid);
-  string process_uptime = cpu_utilisation[21];
+
+  string process_uptime = cpu_utilisation[PositionToVectorIndex(22)];
   return std::stol(process_uptime); 
 }
 
